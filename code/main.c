@@ -1,15 +1,24 @@
 #include <avr/io.h>
 
-//#define s PORTB.3
-//#bit s=0x16.l
+#include "lcd_nokia5110.h"
+//#define as PORTB.2
 
-int main(){
-	DDRB=0xff;
-	//int a=12;
-	//s=a.4;
-	//s=1;
-
+int main(void){
+	//DDRB=0xff;
+	//ASF;
+	//as=1;
+	
+	lcd_init();
+	lcd_putChar('A');
+	//lcd_move(2,5);
+	//lcd_cmd(0xce);
+	//_delay_ms(100);
+	lcd_putChar('X');
+	//lcd_move(1,3);
+	char s[]="nham la ai?";
+	//lcd_putString(s);
+	//lcd_move(1,1);
+	//lcd_putChar('K');
+	while(1);
 	return 0;
-
-	}
-
+}
