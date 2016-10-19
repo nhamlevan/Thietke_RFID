@@ -1,6 +1,7 @@
 #include <avr/io.h>
 
 #include "lcd_nokia5110.h"
+#include "spi.h"
 //#define as PORTB.2
 
 int main(void){
