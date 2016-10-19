@@ -1,5 +1,5 @@
 #include <util/delay.h>
-#include "font5x8.h"
+#include "font6x8.h"
 
 
 #define CE PD0
