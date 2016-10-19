@@ -1,4 +1,4 @@
-#include <stdio.h>
+//#include <stdio.h>
 #include "spi.h"
 
 //
@@ -65,7 +65,7 @@ void setBitMask(uint8_t reg, uint8_t mask){
 
 uint8_t MFRC522ToCard(uint8_t cmd, uint8_t *sendData, uint8_t sendLen, uint8_t *backData, uint8_t *backLen){
 	uint8_t status=MI_ERR, irqEn=0x00, waitIrq=0x00;
-	uint8_t lastBits, i,n;
+	uint16_t lastBits, i,n;
 	
 	switch(cmd){
 		case PCD_AUTHENT:{
@@ -161,10 +161,10 @@ uint8_t anticoll(uint8_t *serNum){
     return status;
 }
 
-uint8_t readCardSerial(){
+uint8_t readCardSerial(uint8_t *serNum){
 	uint8_t status, str[MAX_LEN];
 	status=anticoll(str);
-	//memcpy(serNum, str, 5);
+	memcpy(serNum, str, 5);//sizeof(5));
 	if(status==MI_OK) return 1;
 	else return 0;
 }
