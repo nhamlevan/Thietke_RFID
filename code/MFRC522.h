@@ -7,6 +7,9 @@
 //
 #define PICC_REQIDL 0x26
 #define PICC_ANTICOLL 0x93
+#define PCD_CALCCRC 0x03
+#define PICC_HALT 0x50
+
 //
 #define BitFramingReg 0x0D
 #define CommandReg 0x01
@@ -16,6 +19,9 @@
 #define FIFODataReg 0x09
 #define ErrorReg 0x06
 #define ControlReg 0x0C
+#define DivIrqReg 0x05
+#define CRCResultRegL 0x22
+#define CRCResultRegM 0x20
 
 
 //
@@ -29,9 +35,6 @@
 #define MI_NOTAGERR 1
 #define MI_ERR 2
 
-class nham{
-	uint8_t sd;
-};
 void writeMFRC522(uint8_t addr, uint8_t val){
 	NSS_LOW;
 	spi_tranfer((addr<<1)&0x7E);
@@ -164,4 +167,33 @@ uint8_t readCardSerial(){
 	//memcpy(serNum, str, 5);
 	if(status==MI_OK) return 1;
 	else return 0;
+}
+
+void calculateCRC(uint8_t *pIndata, uint8_t len, uint8_t *pOutData){
+	uint8_t i,n;
+	clearBitMask(DivIrqReg, 0x04);			//CRCIrq = 0
+    setBitMask(FIFOLevelReg, 0x80);			//Claro puntero FIFO
+	for (i=0; i<len; i++) writeMFRC522(FIFODataReg, *(pIndata+i));   
+    writeMFRC522(CommandReg, PCD_CALCCRC);
+
+	// Esperar a la finalización de cálculo del CRC
+    i = 0xFF;
+	do 
+    {
+        n = readMFRC522(DivIrqReg);
+        i--;
+    }while ((i!=0) && !(n&0x04));			//CRCIrq = 1
+	
+	//Lea el cálculo de CRC
+    pOutData[0] = readMFRC522(CRCResultRegL);
+    pOutData[1] = readMFRC522(CRCResultRegM);
+}
+
+void halt(){
+	uint8_t status, unLen, buff[4];
+	buff[0]=PICC_HALT;
+	buff[1]=0;
+	calculateCRC(buff, 2, &buff[2]);
+ 
+    status = MFRC522ToCard(PCD_TRANSCEIVE, buff, 4, buff,&unLen);
 }
